@@ -1,0 +1,41 @@
+version: '3.2'
+
+services:
+  reverseproxy:
+    image: reverseproxy
+    ports:
+      - 8080:8080
+      - 8081:8081
+    restart: always
+
+  nginx:
+    depends_on:
+      - reverseproxy
+    image: nginx:alpine
+    restart: always
+
+  apache:
+    depends_on:
+      - reverseproxy
+    image: httpd:alpine
+    restart: always
+    volumes:
+      - type: bind
+        source: .
+        target: /usr/local/apache2/htdocs
+        volume:
+          nocopy: true
+
+  mysql:
+    image: mariadb
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+    volumes:
+      dbdata:/var/lib/mysql
+
+volumes:
+  data:
+  dbdata:
